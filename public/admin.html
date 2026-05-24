@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Sorteio</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      padding: 30px 20px;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .counter {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 24px;
+      color: #a78bfa;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .counter span {
+      font-size: 1.4rem;
+      color: #c4b5fd;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: rgba(167, 139, 250, 0.15);
+    }
+
+    th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 0.85rem;
+      color: #c4b5fd;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .palavra-chave {
+      background: rgba(167, 139, 250, 0.15);
+      color: #c4b5fd;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.2s;
+    }
+
+    .thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .vazio {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      padding: 40px;
+      font-size: 1rem;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-overlay.ativo {
+      display: flex;
+    }
+
+    .modal-overlay img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    }
+
+    .login-screen.oculto {
+      display: none;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px 35px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-box h2 {
+      color: #fff;
+      margin-bottom: 8px;
+      font-size: 1.5rem;
+    }
+
+    .login-box .login-sub {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 16px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .login-box input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+    }
+
+    .login-box input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .login-erro {
+      color: #f87171;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .voltar {
+      display: inline-block;
+      color: #a78bfa;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+
+    .voltar:hover {
+      color: #c4b5fd;
+    }
+
+    .btn-copiar {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-copiar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-zerar {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-zerar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+    }
+
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-overlay.ativo {
+      display: flex;
+    }
+
+    .confirm-box {
+      background: #1e1b3a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .confirm-box p {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .confirm-hint {
+      color: rgba(255, 255, 255, 0.4) !important;
+      font-size: 0.85rem !important;
+      margin-bottom: 24px !important;
+    }
+
+    .confirm-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn-cancelar {
+      padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-cancelar:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-confirmar {
+      padding: 10px 24px;
+      background: #dc2626;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-confirmar:hover {
+      background: #b91c1c;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+      }
+
+      .palavra-chave {
+        font-size: 0.75rem;
+        padding: 3px 7px;
+      }
+
+      .thumb {
+        width: 32px;
+        height: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-screen" id="login-screen">
+    <div class="login-box">
+      <h2>Acesso Admin</h2>
+      <p class="login-sub">Digite a senha para acessar o painel</p>
+      <form id="login-form">
+        <input type="password" id="senha" placeholder="Senha" required>
+        <button type="submit" class="login-btn" id="login-btn">Entrar</button>
+      </form>
+      <p class="login-erro" id="login-erro">Senha incorreta.</p>
+    </div>
+  </div>
+
+  <div class="container" id="painel" style="display:none;">
+    <a href="/" class="voltar">&#8592; Voltar ao cadastro</a>
+    <h1>Painel do Administrador</h1>
+    <p class="subtitle">Visualize todos os participantes e suas palavras-chave</p>
+
+    <div class="counter">
+      Total de participantes: <span id="total">0</span>
+    </div>
+
+    <div id="tabela-container"></div>
+
+    <div style="text-align:center; margin-top:30px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+      <button class="btn-copiar" id="btn-copiar">Copiar lista de nomes</button>
+      <button class="btn-zerar" id="btn-zerar">Zerar lista de participantes</button>
+    </div>
+
+    <div class="confirm-overlay" id="confirm-overlay">
+      <div class="confirm-box">
+        <p>Tem certeza que deseja apagar <strong>todos</strong> os participantes e prints?</p>
+        <p class="confirm-hint">Essa ação não pode ser desfeita.</p>
+        <div class="confirm-buttons">
+          <button class="btn-cancelar" id="btn-cancelar">Cancelar</button>
+          <button class="btn-confirmar" id="btn-confirmar">Sim, zerar tudo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <img id="modal-img" src="" alt="Print">
+  </div>
+
+  <script>
+    let adminToken = sessionStorage.getItem('adminToken') || '';
+
+    const loginScreen = document.getElementById('login-screen');
+    const painel = document.getElementById('painel');
+    const loginForm = document.getElementById('login-form');
+    const loginErro = document.getElementById('login-erro');
+
+    if (adminToken) {
+      verificarToken();
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginErro.style.display = 'none';
+      const senha = document.getElementById('senha').value;
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ senha })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          adminToken = data.token;
+          sessionStorage.setItem('adminToken', adminToken);
+          mostrarPainel();
+        } else {
+          loginErro.style.display = 'block';
+        }
+      } catch {
+        loginErro.textContent = 'Erro de conexão.';
+        loginErro.style.display = 'block';
+      }
+    });
+
+    async function verificarToken() {
+      try {
+        const res = await fetch('/api/admin/participantes', {
+          headers: { 'Authorization': adminToken }
+        });
+        if (res.ok) {
+          mostrarPainel();
+        } else {
+          sessionStorage.removeItem('adminToken');
+          adminToken = '';
+        }
+      } catch {}
+    }
+
+    function mostrarPainel() {
+      loginScreen.classList.add('oculto');
+      painel.style.display = 'block';
+      carregar();
+    }
+
+    const totalEl = document.getElementById('total');
+    const tabelaContainer = document.getElementById('tabela-container');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+
+    modal.addEventListener('click', () => modal.classList.remove('ativo'));
+
+    function abrirModal(src) {
+      modalImg.src = src;
+      modal.classList.add('ativo');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function carregar() {
+      try {
+        const res = await fetch('/api/admin/participantes', {
+          headers: { 'Authorization': adminToken }
+        });
+        const data = await res.json();
+        totalEl.textContent = data.total;
+        listaParticipantes = data.participantes;
+
+        if (data.participantes.length === 0) {
+          tabelaContainer.innerHTML = '<p class="vazio">Nenhum participante cadastrado ainda.</p>';
+          return;
+        }
+
+        let html = `<table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Palavra-chave</th>
+              <th>Print</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+        data.participantes.forEach((p, i) => {
+          html += `<tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(p.nome_completo)}</td>
+            <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
+            <td><img class="thumb" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print"></td>
+            <td>${escapeHtml(p.criado_em || '')}</td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+        tabelaContainer.innerHTML = html;
+      } catch {
+        tabelaContainer.innerHTML = '<p class="vazio">Erro ao carregar participantes.</p>';
+      }
+    }
+
+    const btnCopiar = document.getElementById('btn-copiar');
+    let listaParticipantes = [];
+
+    btnCopiar.addEventListener('click', async () => {
+      if (listaParticipantes.length === 0) {
+        btnCopiar.textContent = 'Lista vazia!';
+        setTimeout(() => { btnCopiar.textContent = 'Copiar lista de nomes'; }, 2000);
+        return;
+      }
+      const texto = listaParticipantes
+        .map((p, i) => `${i + 1}. ${p.nome_completo}`)
+        .join('\n');
+      await navigator.clipboard.writeText(texto);
+      btnCopiar.textContent = 'Copiado!';
+      setTimeout(() => { btnCopiar.textContent = 'Copiar lista de nomes'; }, 2000);
+    });
+
+    const btnZerar = document.getElementById('btn-zerar');
+    const confirmOverlay = document.getElementById('confirm-overlay');
+    const btnCancelar = document.getElementById('btn-cancelar');
+    const btnConfirmar = document.getElementById('btn-confirmar');
+
+    btnZerar.addEventListener('click', () => {
+      confirmOverlay.classList.add('ativo');
+    });
+
+    btnCancelar.addEventListener('click', () => {
+      confirmOverlay.classList.remove('ativo');
+    });
+
+    confirmOverlay.addEventListener('click', (e) => {
+      if (e.target === confirmOverlay) confirmOverlay.classList.remove('ativo');
+    });
+
+    btnConfirmar.addEventListener('click', async () => {
+      btnConfirmar.disabled = true;
+      btnConfirmar.textContent = 'Zerando...';
+      try {
+        const res = await fetch('/api/admin/zerar', {
+          method: 'DELETE',
+          headers: { 'Authorization': adminToken }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          confirmOverlay.classList.remove('ativo');
+          carregar();
+        }
+      } catch {} finally {
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Sim, zerar tudo';
+      }
+    });
+
+  </script>
+</body>
+</html>

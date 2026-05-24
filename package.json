@@ -1,0 +1,14 @@
+{
+  "name": "projeto-forra-sorteio",
+  "version": "1.0.0",
+  "description": "Site de cadastro para sorteio",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "sql.js": "^1.11.0"
+  }
+}

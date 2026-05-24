@@ -1,0 +1,5 @@
+node_modules/
+uploads/
+sorteio.db
+test-print.png
+.claude/
