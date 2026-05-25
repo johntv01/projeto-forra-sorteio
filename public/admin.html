@@ -664,6 +664,27 @@
       background: #b91c1c;
     }
 
+    .btn-olho {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+      transition: color 0.2s;
+    }
+
+    .btn-olho:hover {
+      color: #c4b5fd;
+    }
+
+    .whatsapp-oculto {
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 1px;
+    }
+
     @media (max-width: 600px) {
       th, td {
         padding: 10px 8px;
@@ -760,6 +781,22 @@
 
   <script>
     let adminToken = sessionStorage.getItem('adminToken') || '';
+    let whatsappVisivel = true;
+
+    function mascarar(numero) {
+      return numero.replace(/\d/g, '*');
+    }
+
+    function toggleWhatsapp() {
+      whatsappVisivel = !whatsappVisivel;
+      const btnOlho = document.getElementById('btn-olho');
+      btnOlho.innerHTML = whatsappVisivel ? '&#9673;' : '&#9711;';
+      document.querySelectorAll('.celula-whatsapp').forEach(td => {
+        const real = td.getAttribute('data-whatsapp');
+        td.textContent = whatsappVisivel ? real : mascarar(real);
+        td.classList.toggle('whatsapp-oculto', !whatsappVisivel);
+      });
+    }
 
     const loginScreen = document.getElementById('login-screen');
     const painel = document.getElementById('painel');
@@ -851,7 +888,7 @@
             <tr>
               <th>#</th>
               <th>Nome</th>
-              <th>WhatsApp</th>
+              <th>WhatsApp <button class="btn-olho" id="btn-olho" title="Ocultar/Mostrar WhatsApp" onclick="toggleWhatsapp()">&#9673;</button></th>
               <th>Palavra-chave</th>
               <th>Print</th>
               <th>Data</th>
@@ -863,7 +900,7 @@
           html += `<tr>
             <td>${i + 1}</td>
             <td>${escapeHtml(p.nome_completo)}</td>
-            <td>${escapeHtml(p.whatsapp)}</td>
+            <td class="celula-whatsapp" data-whatsapp="${escapeHtml(p.whatsapp)}">${whatsappVisivel ? escapeHtml(p.whatsapp) : mascarar(p.whatsapp)}</td>
             <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
             <td><img class="thumb" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print"></td>
             <td>${escapeHtml(p.criado_em || '')}</td>
