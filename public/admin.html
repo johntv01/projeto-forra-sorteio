@@ -459,15 +459,82 @@
     .vencedor-label {
       font-size: 1.2rem;
       color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .vencedores-lista {
+      margin-bottom: 30px;
     }
 
     .vencedor-nome {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       color: #fbbf24;
       font-weight: 700;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       text-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+      animation: vencedorEntrada 0.6s ease-out;
+    }
+
+    .vencedor-nome .vencedor-pos {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+      margin-right: 8px;
+    }
+
+    .roleta-qtd {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .roleta-qtd label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+    }
+
+    .roleta-qtd-controle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qtd-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.1);
+      color: #fbbf24;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qtd-btn:hover {
+      background: rgba(251, 191, 36, 0.25);
+    }
+
+    .qtd-valor {
+      color: #fbbf24;
+      font-size: 1.4rem;
+      font-weight: 700;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .roleta-rodada {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 14px;
+      min-height: 20px;
     }
 
     .vencedor-btn-fechar {
@@ -637,10 +704,19 @@
     <button class="roleta-fechar" id="roleta-fechar">&times;</button>
     <div class="roleta-container">
       <div class="roleta-titulo">Roleta do Sorteio</div>
+      <div class="roleta-qtd">
+        <label for="qtd-ganhadores">Quantidade de ganhadores:</label>
+        <div class="roleta-qtd-controle">
+          <button class="qtd-btn" id="qtd-menos">-</button>
+          <span class="qtd-valor" id="qtd-valor">1</span>
+          <button class="qtd-btn" id="qtd-mais">+</button>
+        </div>
+      </div>
       <div class="roleta-visor">
         <div class="roleta-indicador"></div>
         <div class="roleta-lista" id="roleta-lista"></div>
       </div>
+      <div class="roleta-rodada" id="roleta-rodada"></div>
       <button class="roleta-btn-girar" id="roleta-btn-girar">Girar</button>
     </div>
   </div>
@@ -648,8 +724,8 @@
   <div class="vencedor-overlay" id="vencedor-overlay">
     <div class="vencedor-card">
       <div class="vencedor-icone">&#127942;</div>
-      <div class="vencedor-label">O vencedor é</div>
-      <div class="vencedor-nome" id="vencedor-nome"></div>
+      <div class="vencedor-label" id="vencedor-label">O vencedor é</div>
+      <div class="vencedores-lista" id="vencedores-lista"></div>
       <button class="vencedor-btn-fechar" id="vencedor-fechar">Fechar</button>
     </div>
   </div>
@@ -817,9 +893,34 @@
     const roletaFechar = document.getElementById('roleta-fechar');
     const roletaLista = document.getElementById('roleta-lista');
     const roletaBtnGirar = document.getElementById('roleta-btn-girar');
+    const roletaRodada = document.getElementById('roleta-rodada');
     const vencedorOverlay = document.getElementById('vencedor-overlay');
-    const vencedorNome = document.getElementById('vencedor-nome');
+    const vencedorLabel = document.getElementById('vencedor-label');
+    const vencedoresLista = document.getElementById('vencedores-lista');
     const vencedorFecharBtn = document.getElementById('vencedor-fechar');
+    const qtdValor = document.getElementById('qtd-valor');
+    const qtdMenos = document.getElementById('qtd-menos');
+    const qtdMais = document.getElementById('qtd-mais');
+
+    let qtdGanhadores = 1;
+    let vencedores = [];
+    let nomesDisponiveis = [];
+    let rodadaAtual = 0;
+
+    qtdMenos.addEventListener('click', () => {
+      if (qtdGanhadores > 1) {
+        qtdGanhadores--;
+        qtdValor.textContent = qtdGanhadores;
+      }
+    });
+
+    qtdMais.addEventListener('click', () => {
+      const max = Math.max(1, listaParticipantes.length - 1);
+      if (qtdGanhadores < max) {
+        qtdGanhadores++;
+        qtdValor.textContent = qtdGanhadores;
+      }
+    });
 
     btnSortear.addEventListener('click', () => {
       if (listaParticipantes.length < 2) {
@@ -827,7 +928,15 @@
         setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
         return;
       }
-      montarRoleta();
+      vencedores = [];
+      rodadaAtual = 0;
+      nomesDisponiveis = listaParticipantes.map(p => p.nome_completo);
+      if (qtdGanhadores > nomesDisponiveis.length) {
+        qtdGanhadores = nomesDisponiveis.length;
+        qtdValor.textContent = qtdGanhadores;
+      }
+      montarRoleta(nomesDisponiveis);
+      atualizarRodada();
       roletaOverlay.classList.add('ativo');
     });
 
@@ -840,8 +949,15 @@
       document.querySelectorAll('.confete').forEach(c => c.remove());
     });
 
-    function montarRoleta() {
-      const nomes = listaParticipantes.map(p => p.nome_completo);
+    function atualizarRodada() {
+      if (qtdGanhadores > 1) {
+        roletaRodada.textContent = `Sorteio ${rodadaAtual + 1} de ${qtdGanhadores}`;
+      } else {
+        roletaRodada.textContent = '';
+      }
+    }
+
+    function montarRoleta(nomes) {
       let html = '';
       for (let i = 0; i < 5; i++) {
         nomes.forEach(nome => {
@@ -858,7 +974,7 @@
       roletaBtnGirar.disabled = true;
       roletaBtnGirar.textContent = 'Girando...';
 
-      const nomes = listaParticipantes.map(p => p.nome_completo);
+      const nomes = nomesDisponiveis;
       const totalNomes = nomes.length;
       const itemHeight = 60;
       const vencedorIndex = Math.floor(Math.random() * totalNomes);
@@ -869,7 +985,6 @@
 
       let inicio = null;
       const duracao = 5000;
-      const posInicial = 0;
 
       roletaLista.style.transition = 'none';
       roletaLista.style.transform = 'translateY(0)';
@@ -882,24 +997,49 @@
         if (!inicio) inicio = timestamp;
         const progresso = Math.min((timestamp - inicio) / duracao, 1);
         const ease = easeOut(progresso);
-        const posAtual = posInicial - (destino * ease);
+        const posAtual = -(destino * ease);
 
         roletaLista.style.transform = `translateY(${posAtual}px)`;
 
         if (progresso < 1) {
           requestAnimationFrame(animar);
         } else {
-          setTimeout(() => {
-            roletaOverlay.classList.remove('ativo');
-            vencedorNome.textContent = nomes[vencedorIndex];
-            vencedorOverlay.classList.add('ativo');
-            criarConfetes();
-          }, 500);
+          const nomeVencedor = nomes[vencedorIndex];
+          vencedores.push(nomeVencedor);
+          rodadaAtual++;
+
+          nomesDisponiveis = nomesDisponiveis.filter(n => n !== nomeVencedor);
+
+          if (rodadaAtual < qtdGanhadores) {
+            setTimeout(() => {
+              montarRoleta(nomesDisponiveis);
+              atualizarRodada();
+            }, 800);
+          } else {
+            setTimeout(() => {
+              roletaOverlay.classList.remove('ativo');
+              mostrarVencedores();
+              criarConfetes();
+            }, 500);
+          }
         }
       }
 
       requestAnimationFrame(animar);
     });
+
+    function mostrarVencedores() {
+      if (vencedores.length === 1) {
+        vencedorLabel.textContent = 'O vencedor é';
+        vencedoresLista.innerHTML = `<div class="vencedor-nome">${escapeHtml(vencedores[0])}</div>`;
+      } else {
+        vencedorLabel.textContent = 'Os vencedores são';
+        vencedoresLista.innerHTML = vencedores
+          .map((nome, i) => `<div class="vencedor-nome"><span class="vencedor-pos">${i + 1}º</span>${escapeHtml(nome)}</div>`)
+          .join('');
+      }
+      vencedorOverlay.classList.add('ativo');
+    }
 
     function criarConfetes() {
       const cores = ['#fbbf24', '#a78bfa', '#4ade80', '#f87171', '#60a5fa', '#f472b6'];
