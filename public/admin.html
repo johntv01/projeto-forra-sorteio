@@ -492,6 +492,20 @@
       border-radius: 6px;
     }
 
+    .vencedor-bloco {
+      margin-bottom: 16px;
+      animation: vencedorEntrada 0.6s ease-out;
+    }
+
+    .vencedor-titulo-ganhador {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 500;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
     .roleta-qtd {
       display: flex;
       align-items: center;
@@ -1041,11 +1055,11 @@
     function mostrarVencedores() {
       if (vencedores.length === 1) {
         vencedorLabel.textContent = 'O vencedor é';
-        vencedoresLista.innerHTML = `<div class="vencedor-nome"><span class="vencedor-id">#${vencedores[0].id}</span>${escapeHtml(vencedores[0].nome)}</div>`;
+        vencedoresLista.innerHTML = `<div class="vencedor-bloco"><div class="vencedor-nome"><span class="vencedor-id">#${vencedores[0].id}</span>${escapeHtml(vencedores[0].nome)}</div></div>`;
       } else {
         vencedorLabel.textContent = 'Os vencedores são';
         vencedoresLista.innerHTML = vencedores
-          .map((v, i) => `<div class="vencedor-nome"><span class="vencedor-pos">${i + 1}º</span><span class="vencedor-id">#${v.id}</span>${escapeHtml(v.nome)}</div>`)
+          .map((v, i) => `<div class="vencedor-bloco"><div class="vencedor-titulo-ganhador">Ganhador ${i + 1}</div><div class="vencedor-nome"><span class="vencedor-id">#${v.id}</span>${escapeHtml(v.nome)}</div></div>`)
           .join('');
       }
       vencedorOverlay.classList.add('ativo');
