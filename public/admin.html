@@ -272,6 +272,235 @@
       box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
     }
 
+    .btn-sortear {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      border: none;
+      border-radius: 12px;
+      color: #1a1a2e;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-sortear:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
+
+    .roleta-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 250;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .roleta-overlay.ativo {
+      display: flex;
+    }
+
+    .roleta-container {
+      text-align: center;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+    }
+
+    .roleta-titulo {
+      font-size: 1.6rem;
+      color: #fbbf24;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .roleta-visor {
+      position: relative;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(251, 191, 36, 0.3);
+      margin-bottom: 30px;
+    }
+
+    .roleta-visor::before,
+    .roleta-visor::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 100px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .roleta-visor::before {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(15, 12, 41, 0.95), transparent);
+    }
+
+    .roleta-visor::after {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(15, 12, 41, 0.95), transparent);
+    }
+
+    .roleta-indicador {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 60px;
+      margin-top: -30px;
+      border-top: 2px solid #fbbf24;
+      border-bottom: 2px solid #fbbf24;
+      background: rgba(251, 191, 36, 0.08);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .roleta-lista {
+      transition: transform 0.1s linear;
+      will-change: transform;
+    }
+
+    .roleta-item {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      transition: color 0.2s, font-size 0.2s;
+    }
+
+    .roleta-item.destaque {
+      color: #fbbf24;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .roleta-btn-girar {
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      border: none;
+      border-radius: 14px;
+      color: #1a1a2e;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .roleta-btn-girar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.5);
+    }
+
+    .roleta-btn-girar:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .roleta-fechar {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 2rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 260;
+    }
+
+    .roleta-fechar:hover {
+      color: #fff;
+    }
+
+    .vencedor-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .vencedor-overlay.ativo {
+      display: flex;
+    }
+
+    .vencedor-card {
+      text-align: center;
+      animation: vencedorEntrada 0.6s ease-out;
+    }
+
+    @keyframes vencedorEntrada {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .vencedor-icone {
+      font-size: 5rem;
+      margin-bottom: 16px;
+    }
+
+    .vencedor-label {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 8px;
+    }
+
+    .vencedor-nome {
+      font-size: 2.5rem;
+      color: #fbbf24;
+      font-weight: 700;
+      margin-bottom: 30px;
+      text-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+    }
+
+    .vencedor-btn-fechar {
+      padding: 14px 40px;
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .vencedor-btn-fechar:hover {
+      transform: translateY(-2px);
+    }
+
+    .confete {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      z-index: 350;
+      pointer-events: none;
+      animation: confeteCair 3s ease-in forwards;
+    }
+
+    @keyframes confeteCair {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
     .confirm-overlay {
       display: none;
       position: fixed;
@@ -387,6 +616,7 @@
     <div id="tabela-container"></div>
 
     <div style="text-align:center; margin-top:30px; display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+      <button class="btn-sortear" id="btn-sortear">Sortear vencedor</button>
       <button class="btn-copiar" id="btn-copiar">Copiar lista de nomes</button>
       <button class="btn-zerar" id="btn-zerar">Zerar lista de participantes</button>
     </div>
@@ -400,6 +630,27 @@
           <button class="btn-confirmar" id="btn-confirmar">Sim, zerar tudo</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="roleta-overlay" id="roleta-overlay">
+    <button class="roleta-fechar" id="roleta-fechar">&times;</button>
+    <div class="roleta-container">
+      <div class="roleta-titulo">Roleta do Sorteio</div>
+      <div class="roleta-visor">
+        <div class="roleta-indicador"></div>
+        <div class="roleta-lista" id="roleta-lista"></div>
+      </div>
+      <button class="roleta-btn-girar" id="roleta-btn-girar">Girar</button>
+    </div>
+  </div>
+
+  <div class="vencedor-overlay" id="vencedor-overlay">
+    <div class="vencedor-card">
+      <div class="vencedor-icone">&#127942;</div>
+      <div class="vencedor-label">O vencedor é</div>
+      <div class="vencedor-nome" id="vencedor-nome"></div>
+      <button class="vencedor-btn-fechar" id="vencedor-fechar">Fechar</button>
     </div>
   </div>
 
@@ -559,6 +810,115 @@
     confirmOverlay.addEventListener('click', (e) => {
       if (e.target === confirmOverlay) confirmOverlay.classList.remove('ativo');
     });
+
+    // Roleta
+    const btnSortear = document.getElementById('btn-sortear');
+    const roletaOverlay = document.getElementById('roleta-overlay');
+    const roletaFechar = document.getElementById('roleta-fechar');
+    const roletaLista = document.getElementById('roleta-lista');
+    const roletaBtnGirar = document.getElementById('roleta-btn-girar');
+    const vencedorOverlay = document.getElementById('vencedor-overlay');
+    const vencedorNome = document.getElementById('vencedor-nome');
+    const vencedorFecharBtn = document.getElementById('vencedor-fechar');
+
+    btnSortear.addEventListener('click', () => {
+      if (listaParticipantes.length < 2) {
+        btnSortear.textContent = 'Mínimo 2 participantes!';
+        setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
+        return;
+      }
+      montarRoleta();
+      roletaOverlay.classList.add('ativo');
+    });
+
+    roletaFechar.addEventListener('click', () => {
+      roletaOverlay.classList.remove('ativo');
+    });
+
+    vencedorFecharBtn.addEventListener('click', () => {
+      vencedorOverlay.classList.remove('ativo');
+      document.querySelectorAll('.confete').forEach(c => c.remove());
+    });
+
+    function montarRoleta() {
+      const nomes = listaParticipantes.map(p => p.nome_completo);
+      let html = '';
+      for (let i = 0; i < 5; i++) {
+        nomes.forEach(nome => {
+          html += `<div class="roleta-item">${escapeHtml(nome)}</div>`;
+        });
+      }
+      roletaLista.innerHTML = html;
+      roletaLista.style.transform = 'translateY(0)';
+      roletaBtnGirar.disabled = false;
+      roletaBtnGirar.textContent = 'Girar';
+    }
+
+    roletaBtnGirar.addEventListener('click', () => {
+      roletaBtnGirar.disabled = true;
+      roletaBtnGirar.textContent = 'Girando...';
+
+      const nomes = listaParticipantes.map(p => p.nome_completo);
+      const totalNomes = nomes.length;
+      const itemHeight = 60;
+      const vencedorIndex = Math.floor(Math.random() * totalNomes);
+      const voltas = 3;
+      const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
+      const offset = 120;
+      const destino = posicaoFinal - offset;
+
+      let inicio = null;
+      const duracao = 5000;
+      const posInicial = 0;
+
+      roletaLista.style.transition = 'none';
+      roletaLista.style.transform = 'translateY(0)';
+
+      function easeOut(t) {
+        return 1 - Math.pow(1 - t, 4);
+      }
+
+      function animar(timestamp) {
+        if (!inicio) inicio = timestamp;
+        const progresso = Math.min((timestamp - inicio) / duracao, 1);
+        const ease = easeOut(progresso);
+        const posAtual = posInicial - (destino * ease);
+
+        roletaLista.style.transform = `translateY(${posAtual}px)`;
+
+        if (progresso < 1) {
+          requestAnimationFrame(animar);
+        } else {
+          setTimeout(() => {
+            roletaOverlay.classList.remove('ativo');
+            vencedorNome.textContent = nomes[vencedorIndex];
+            vencedorOverlay.classList.add('ativo');
+            criarConfetes();
+          }, 500);
+        }
+      }
+
+      requestAnimationFrame(animar);
+    });
+
+    function criarConfetes() {
+      const cores = ['#fbbf24', '#a78bfa', '#4ade80', '#f87171', '#60a5fa', '#f472b6'];
+      for (let i = 0; i < 80; i++) {
+        const confete = document.createElement('div');
+        confete.className = 'confete';
+        confete.style.left = Math.random() * 100 + 'vw';
+        confete.style.top = -10 + 'px';
+        confete.style.background = cores[Math.floor(Math.random() * cores.length)];
+        confete.style.width = (Math.random() * 8 + 6) + 'px';
+        confete.style.height = (Math.random() * 8 + 6) + 'px';
+        confete.style.animationDelay = Math.random() * 2 + 's';
+        confete.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        document.body.appendChild(confete);
+      }
+      setTimeout(() => {
+        document.querySelectorAll('.confete').forEach(c => c.remove());
+      }, 5000);
+    }
 
     btnConfirmar.addEventListener('click', async () => {
       btnConfirmar.disabled = true;
