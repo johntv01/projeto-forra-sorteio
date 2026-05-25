@@ -500,6 +500,7 @@
             <tr>
               <th>#</th>
               <th>Nome</th>
+              <th>WhatsApp</th>
               <th>Palavra-chave</th>
               <th>Print</th>
               <th>Data</th>
@@ -511,6 +512,7 @@
           html += `<tr>
             <td>${i + 1}</td>
             <td>${escapeHtml(p.nome_completo)}</td>
+            <td>${escapeHtml(p.whatsapp)}</td>
             <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
             <td><img class="thumb" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print"></td>
             <td>${escapeHtml(p.criado_em || '')}</td>

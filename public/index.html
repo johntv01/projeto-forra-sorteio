@@ -336,6 +336,11 @@
         </div>
 
         <div class="form-group">
+          <label for="whatsapp">WhatsApp</label>
+          <input type="tel" id="whatsapp" placeholder="(00) 00000-0000" required minlength="10">
+        </div>
+
+        <div class="form-group">
           <label for="palavra_chave">Palavra-chave</label>
           <input type="text" id="palavra_chave" placeholder="Digite a palavra-chave da live" required minlength="3">
         </div>
@@ -383,6 +388,16 @@
     const previewImg = document.getElementById('preview-img');
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
+
+    const whatsappInput = document.getElementById('whatsapp');
+    whatsappInput.addEventListener('input', () => {
+      let v = whatsappInput.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+      else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      else if (v.length > 0) v = `(${v}`;
+      whatsappInput.value = v;
+    });
 
     printInput.addEventListener('change', () => {
       const file = printInput.files[0];
@@ -471,6 +486,7 @@
 
       const formData = new FormData();
       formData.append('nome_completo', document.getElementById('nome_completo').value);
+      formData.append('whatsapp', document.getElementById('whatsapp').value);
       formData.append('palavra_chave', document.getElementById('palavra_chave').value);
       formData.append('print', printInput.files[0]);
 

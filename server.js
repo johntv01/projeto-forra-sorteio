@@ -51,6 +51,7 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS participantes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome_completo TEXT NOT NULL UNIQUE,
+      whatsapp TEXT NOT NULL,
       palavra_chave TEXT NOT NULL,
       print_path TEXT NOT NULL,
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
@@ -99,9 +100,9 @@ app.post('/api/participantes', (req, res) => {
       return res.status(400).json({ erro: err.message });
     }
 
-    const { nome_completo, palavra_chave } = req.body;
+    const { nome_completo, whatsapp, palavra_chave } = req.body;
 
-    if (!nome_completo || !palavra_chave) {
+    if (!nome_completo || !whatsapp || !palavra_chave) {
       if (req.file) fs.unlinkSync(req.file.path);
       return res.status(400).json({ erro: 'Todos os campos são obrigatórios.' });
     }
@@ -111,6 +112,7 @@ app.post('/api/participantes', (req, res) => {
     }
 
     const nomeLimpo = nome_completo.trim();
+    const whatsappLimpo = whatsapp.trim();
     const palavraLimpa = palavra_chave.trim();
 
     if (nomeLimpo.length < 4) {
@@ -125,8 +127,8 @@ app.post('/api/participantes', (req, res) => {
 
     try {
       db.run(
-        'INSERT INTO participantes (nome_completo, palavra_chave, print_path) VALUES (?, ?, ?)',
-        [nomeLimpo, palavraLimpa, req.file.filename]
+        'INSERT INTO participantes (nome_completo, whatsapp, palavra_chave, print_path) VALUES (?, ?, ?, ?)',
+        [nomeLimpo, whatsappLimpo, palavraLimpa, req.file.filename]
       );
       salvarDb();
       const result = db.exec('SELECT COUNT(*) as total FROM participantes');
@@ -165,7 +167,7 @@ app.get('/api/participantes', (req, res) => {
 
 app.get('/api/admin/participantes', verificarAdmin, (req, res) => {
   const result = db.exec(
-    'SELECT id, nome_completo, palavra_chave, print_path, criado_em FROM participantes ORDER BY criado_em DESC'
+    'SELECT id, nome_completo, whatsapp, palavra_chave, print_path, criado_em FROM participantes ORDER BY criado_em DESC'
   );
 
   let participantes = [];
