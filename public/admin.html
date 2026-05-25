@@ -1096,7 +1096,7 @@
       } else {
         vencedorLabel.textContent = 'Os vencedores são';
         vencedoresLista.innerHTML = vencedores
-          .map((v, i) => `<div class="vencedor-bloco"><div class="vencedor-titulo-ganhador">Ganhador ${i + 1}</div><div class="vencedor-nome"><span class="vencedor-id">#${v.id}</span>${escapeHtml(v.nome)}</div></div>`)
+          .map((v, i) => `<div class="vencedor-bloco"><div class="vencedor-titulo-ganhador">Ganhador ${i + 1}</div><div class="vencedor-nome"><span class="vencedor-id">ID ${v.id}</span>${escapeHtml(v.nome)}</div></div>`)
           .join('');
       }
       vencedorOverlay.classList.add('ativo');
