@@ -482,6 +482,16 @@
       margin-right: 8px;
     }
 
+    .vencedor-nome .vencedor-id {
+      font-size: 0.9rem;
+      color: rgba(251, 191, 36, 0.6);
+      font-weight: 500;
+      margin-right: 10px;
+      background: rgba(251, 191, 36, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
     .roleta-qtd {
       display: flex;
       align-items: center;
@@ -1005,7 +1015,7 @@
           requestAnimationFrame(animar);
         } else {
           const vencedor = lista[vencedorIndex];
-          vencedores.push(vencedor.nome);
+          vencedores.push({ id: vencedor.id, nome: vencedor.nome });
           rodadaAtual++;
 
           participantesDisponiveis = participantesDisponiveis.filter(p => p.id !== vencedor.id);
@@ -1031,11 +1041,11 @@
     function mostrarVencedores() {
       if (vencedores.length === 1) {
         vencedorLabel.textContent = 'O vencedor é';
-        vencedoresLista.innerHTML = `<div class="vencedor-nome">${escapeHtml(vencedores[0])}</div>`;
+        vencedoresLista.innerHTML = `<div class="vencedor-nome"><span class="vencedor-id">#${vencedores[0].id}</span>${escapeHtml(vencedores[0].nome)}</div>`;
       } else {
         vencedorLabel.textContent = 'Os vencedores são';
         vencedoresLista.innerHTML = vencedores
-          .map((nome, i) => `<div class="vencedor-nome"><span class="vencedor-pos">${i + 1}º</span>${escapeHtml(nome)}</div>`)
+          .map((v, i) => `<div class="vencedor-nome"><span class="vencedor-pos">${i + 1}º</span><span class="vencedor-id">#${v.id}</span>${escapeHtml(v.nome)}</div>`)
           .join('');
       }
       vencedorOverlay.classList.add('ativo');
