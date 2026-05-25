@@ -963,6 +963,45 @@
     const qtdMenos = document.getElementById('qtd-menos');
     const qtdMais = document.getElementById('qtd-mais');
 
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function somTick() {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.06);
+    }
+
+    function somVitoria() {
+      const ctx = getAudioCtx();
+      const notas = [523, 659, 784, 1047];
+      notas.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        const t = ctx.currentTime + i * 0.15;
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+    }
+
     let qtdGanhadores = 1;
     let vencedores = [];
     let participantesDisponiveis = [];
@@ -1046,6 +1085,7 @@
 
       let inicio = null;
       const duracao = 5000;
+      let ultimoItem = -1;
 
       roletaLista.style.transition = 'none';
       roletaLista.style.transform = 'translateY(0)';
@@ -1059,6 +1099,12 @@
         const progresso = Math.min((timestamp - inicio) / duracao, 1);
         const ease = easeOut(progresso);
         const posAtual = -(destino * ease);
+
+        const itemAtual = Math.floor(Math.abs(posAtual) / itemHeight);
+        if (itemAtual !== ultimoItem) {
+          ultimoItem = itemAtual;
+          somTick();
+        }
 
         roletaLista.style.transform = `translateY(${posAtual}px)`;
 
@@ -1092,7 +1138,7 @@
     function mostrarVencedores() {
       if (vencedores.length === 1) {
         vencedorLabel.textContent = 'O vencedor é';
-        vencedoresLista.innerHTML = `<div class="vencedor-bloco"><div class="vencedor-nome"><span class="vencedor-id">#${vencedores[0].id}</span>${escapeHtml(vencedores[0].nome)}</div></div>`;
+        vencedoresLista.innerHTML = `<div class="vencedor-bloco"><div class="vencedor-nome"><span class="vencedor-id">ID ${vencedores[0].id}</span>${escapeHtml(vencedores[0].nome)}</div></div>`;
       } else {
         vencedorLabel.textContent = 'Os vencedores são';
         vencedoresLista.innerHTML = vencedores
@@ -1100,6 +1146,7 @@
           .join('');
       }
       vencedorOverlay.classList.add('ativo');
+      somVitoria();
     }
 
     function criarConfetes() {
