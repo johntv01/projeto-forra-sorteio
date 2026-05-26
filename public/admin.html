@@ -1006,6 +1006,7 @@
     let vencedores = [];
     let participantesDisponiveis = [];
     let rodadaAtual = 0;
+    let aguardandoProximaRodada = false;
 
     qtdMenos.addEventListener('click', () => {
       if (qtdGanhadores > 1) {
@@ -1074,6 +1075,14 @@
       roletaBtnGirar.disabled = true;
       roletaBtnGirar.textContent = 'Girando...';
 
+      if (aguardandoProximaRodada) {
+        aguardandoProximaRodada = false;
+        montarRoleta(participantesDisponiveis);
+        atualizarRodada();
+        roletaBtnGirar.disabled = true;
+        roletaBtnGirar.textContent = 'Girando...';
+      }
+
       const lista = participantesDisponiveis;
       const totalNomes = lista.length;
       const itemHeight = 60;
@@ -1117,17 +1126,26 @@
 
           participantesDisponiveis = participantesDisponiveis.filter(p => p.id !== vencedor.id);
 
+          // Destacar o nome do ganhador no visor
+          const items = roletaLista.querySelectorAll('.roleta-item');
+          const itemParado = Math.round(Math.abs(destino) / itemHeight);
+          if (items[itemParado]) {
+            items[itemParado].classList.add('destaque');
+          }
+
+          somTick();
+
           if (rodadaAtual < qtdGanhadores) {
-            setTimeout(() => {
-              montarRoleta(participantesDisponiveis);
-              atualizarRodada();
-            }, 800);
+            roletaRodada.innerHTML = `<strong style="color:#fbbf24;">Ganhador ${rodadaAtual}: ${escapeHtml(vencedor.nome)}</strong>`;
+            roletaBtnGirar.disabled = false;
+            roletaBtnGirar.textContent = 'Girar novamente';
+            aguardandoProximaRodada = true;
           } else {
             setTimeout(() => {
               roletaOverlay.classList.remove('ativo');
               mostrarVencedores();
               criarConfetes();
-            }, 500);
+            }, 1500);
           }
         }
       }
