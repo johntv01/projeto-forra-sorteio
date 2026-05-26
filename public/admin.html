@@ -1058,14 +1058,17 @@
       }
     }
 
+    let posicaoAtual = 0;
+
     function montarRoleta(participantes) {
       let html = '';
-      for (let i = 0; i < 5; i++) {
+      for (let rep = 0; rep < 80; rep++) {
         participantes.forEach(p => {
           html += `<div class="roleta-item">${escapeHtml(p.nome)}</div>`;
         });
       }
       roletaLista.innerHTML = html;
+      posicaoAtual = 0;
       roletaLista.style.transform = 'translateY(0)';
       roletaBtnGirar.disabled = false;
       roletaBtnGirar.textContent = 'Girar';
@@ -1077,16 +1080,16 @@
       const itemHeight = 60;
       const vencedorIndex = Math.floor(Math.random() * totalNomes);
       const voltas = 4;
-      const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
+      const distancia = (voltas * totalNomes + vencedorIndex) * itemHeight;
       const offset = 120;
-      const destino = posicaoFinal - offset;
 
       let inicio = null;
       const duracao = 5000;
       let ultimoItem = -1;
+      const posInicial = posicaoAtual;
+      const posFinal = posInicial + distancia - offset;
 
       roletaLista.style.transition = 'none';
-      roletaLista.style.transform = 'translateY(0)';
 
       function easeOut(t) {
         return 1 - Math.pow(1 - t, 6);
@@ -1096,19 +1099,20 @@
         if (!inicio) inicio = timestamp;
         const progresso = Math.min((timestamp - inicio) / duracao, 1);
         const ease = easeOut(progresso);
-        const posAtual = -(destino * ease);
+        const pos = posInicial + (distancia - offset) * ease;
 
-        const itemAtual = Math.floor(Math.abs(posAtual) / itemHeight);
+        const itemAtual = Math.floor(pos / itemHeight);
         if (itemAtual !== ultimoItem) {
           ultimoItem = itemAtual;
           somTick();
         }
 
-        roletaLista.style.transform = `translateY(${posAtual}px)`;
+        roletaLista.style.transform = `translateY(${-pos}px)`;
 
         if (progresso < 1) {
           requestAnimationFrame(animar);
         } else {
+          posicaoAtual = posFinal;
           const vencedor = lista[vencedorIndex];
           vencedores.push({ id: vencedor.id, nome: vencedor.nome });
           rodadaAtual++;
@@ -1117,7 +1121,7 @@
 
           // Destacar o nome do ganhador no visor
           const items = roletaLista.querySelectorAll('.roleta-item');
-          const itemParado = Math.round(Math.abs(destino) / itemHeight);
+          const itemParado = Math.round(posFinal / itemHeight);
           if (items[itemParado]) {
             items[itemParado].classList.add('destaque');
           }
@@ -1148,22 +1152,10 @@
 
       if (aguardandoProximaRodada) {
         aguardandoProximaRodada = false;
-        const visor = document.querySelector('.roleta-visor');
-        visor.style.transition = 'opacity 0.3s';
-        visor.style.opacity = '0';
-        setTimeout(() => {
-          montarRoleta(participantesDisponiveis);
-          atualizarRodada();
-          roletaBtnGirar.disabled = true;
-          roletaBtnGirar.textContent = 'Girando...';
-          visor.style.opacity = '1';
-          setTimeout(() => {
-            visor.style.transition = '';
-            iniciarGiro();
-          }, 300);
-        }, 300);
-      } else {
-        iniciarGiro();
+        atualizarRodada();
+      }
+
+      iniciarGiro();
       }
     });
 
