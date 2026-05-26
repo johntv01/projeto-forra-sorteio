@@ -1078,7 +1078,7 @@
       const totalNomes = lista.length;
       const itemHeight = 60;
       const vencedorIndex = Math.floor(Math.random() * totalNomes);
-      const voltas = 3;
+      const voltas = 4;
       const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
       const offset = 120;
       const destino = posicaoFinal - offset;
@@ -1091,7 +1091,7 @@
       roletaLista.style.transform = 'translateY(0)';
 
       function easeOut(t) {
-        return 1 - Math.pow(1 - t, 4);
+        return 1 - Math.pow(1 - t, 6);
       }
 
       function animar(timestamp) {
