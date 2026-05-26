@@ -898,7 +898,7 @@
 
         data.participantes.forEach((p, i) => {
           html += `<tr>
-            <td>${i + 1}</td>
+            <td>${p.id}</td>
             <td>${escapeHtml(p.nome_completo)}</td>
             <td class="celula-whatsapp" data-whatsapp="${escapeHtml(p.whatsapp)}">${whatsappVisivel ? escapeHtml(p.whatsapp) : mascarar(p.whatsapp)}</td>
             <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
