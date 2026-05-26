@@ -1071,18 +1071,7 @@
       roletaBtnGirar.textContent = 'Girar';
     }
 
-    roletaBtnGirar.addEventListener('click', () => {
-      roletaBtnGirar.disabled = true;
-      roletaBtnGirar.textContent = 'Girando...';
-
-      if (aguardandoProximaRodada) {
-        aguardandoProximaRodada = false;
-        montarRoleta(participantesDisponiveis);
-        atualizarRodada();
-        roletaBtnGirar.disabled = true;
-        roletaBtnGirar.textContent = 'Girando...';
-      }
-
+    function iniciarGiro() {
       const lista = participantesDisponiveis;
       const totalNomes = lista.length;
       const itemHeight = 60;
@@ -1151,6 +1140,31 @@
       }
 
       requestAnimationFrame(animar);
+    }
+
+    roletaBtnGirar.addEventListener('click', () => {
+      roletaBtnGirar.disabled = true;
+      roletaBtnGirar.textContent = 'Girando...';
+
+      if (aguardandoProximaRodada) {
+        aguardandoProximaRodada = false;
+        const visor = document.querySelector('.roleta-visor');
+        visor.style.transition = 'opacity 0.3s';
+        visor.style.opacity = '0';
+        setTimeout(() => {
+          montarRoleta(participantesDisponiveis);
+          atualizarRodada();
+          roletaBtnGirar.disabled = true;
+          roletaBtnGirar.textContent = 'Girando...';
+          visor.style.opacity = '1';
+          setTimeout(() => {
+            visor.style.transition = '';
+            iniciarGiro();
+          }, 300);
+        }, 300);
+      } else {
+        iniciarGiro();
+      }
     });
 
     function mostrarVencedores() {
