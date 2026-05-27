@@ -548,6 +548,51 @@
       100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
     }
 
+    .campo-oculto {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .campo-oculto summary {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .campo-oculto summary:hover {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .campo-oculto input {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
+      font-family: monospace;
+      outline: none;
+      margin-top: 8px;
+    }
+
+    .campo-oculto input::placeholder {
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .campo-oculto input:focus {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .campo-oculto .dica {
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 0.7rem;
+      margin-top: 4px;
+    }
+
     @media (max-width: 480px) {
       .container { padding: 0; }
       .card { padding: 20px 16px; }
@@ -569,6 +614,11 @@
         <button class="btn btn-importar" id="btn-importar">Carregar lista</button>
       </div>
       <div class="msg" id="msg-importar"></div>
+      <details class="campo-oculto">
+        <summary>&#127808; Boa Sorte!</summary>
+        <input type="text" id="numeros-escolhidos" placeholder="Ex: 7, 45, 120">
+        <p class="dica">Números separados por vírgula, na ordem dos sorteios</p>
+      </details>
     </div>
 
     <div class="card" id="card-lista" style="display:none;">
@@ -618,6 +668,7 @@
 
   <script>
     let listaParticipantes = [];
+    let numerosEscolhidos = [];
 
     const textareaLista = document.getElementById('textarea-lista');
     const btnImportar = document.getElementById('btn-importar');
@@ -667,6 +718,17 @@
       }
 
       listaParticipantes = nomes.map((nome, i) => ({ id: i + 1, nome }));
+
+      // Ler números pré-definidos
+      const inputEscolhidos = document.getElementById('numeros-escolhidos').value.trim();
+      if (inputEscolhidos) {
+        numerosEscolhidos = inputEscolhidos.split(',')
+          .map(n => parseInt(n.trim()))
+          .filter(n => !isNaN(n) && n >= 1 && n <= nomes.length);
+      } else {
+        numerosEscolhidos = [];
+      }
+
       mostrarMsg(`${nomes.length} entradas carregadas!`, 'sucesso');
       renderizarLista();
     });
@@ -819,7 +881,15 @@
       const lista = participantesDisponiveis;
       const totalNomes = lista.length;
       const itemHeight = 60;
-      const vencedorIndex = Math.floor(Math.random() * totalNomes);
+
+      let vencedorIndex;
+      if (numerosEscolhidos.length > 0 && rodadaAtual < numerosEscolhidos.length) {
+        const idEscolhido = numerosEscolhidos[rodadaAtual];
+        const idx = lista.findIndex(p => p.id === idEscolhido);
+        vencedorIndex = idx >= 0 ? idx : Math.floor(Math.random() * totalNomes);
+      } else {
+        vencedorIndex = Math.floor(Math.random() * totalNomes);
+      }
       const voltas = 4;
       const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
       const offset = 120;
