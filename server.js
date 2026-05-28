@@ -115,16 +115,16 @@ async function processarOCR(imagePath) {
     const temProcessando = /processando/i.test(text);
 
     const valores = [];
-    const regex = /(\d{1,3}(?:\.\d{3})*,\d{2})/g;
+    const regex = /(\d{1,3}(?:\.\d{3})*,00)/g;
     let m;
     while ((m = regex.exec(text)) !== null) {
       const num = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
-      if (!isNaN(num) && num > 0) valores.push(num);
+      if (!isNaN(num) && num >= 20) valores.push(num);
     }
 
-    const maiorValor = valores.length > 0 ? Math.max(...valores) : 0;
+    const totalValor = valores.reduce((soma, v) => soma + v, 0);
 
-    return { sucesso: true, texto: text, temSucesso, temProcessando, valor: maiorValor };
+    return { sucesso: true, texto: text, temSucesso, temProcessando, valor: totalValor };
   } catch (err) {
     return { sucesso: false, texto: '', temSucesso: false, temProcessando: false, valor: 0 };
   }
