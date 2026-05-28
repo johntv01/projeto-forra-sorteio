@@ -49,6 +49,22 @@
       margin-bottom: 30px;
     }
 
+    .info-box {
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 25px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .info-box strong {
+      color: #c4b5fd;
+    }
+
     .counter {
       text-align: center;
       background: rgba(255, 255, 255, 0.08);
@@ -150,6 +166,13 @@
       border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
+    .msg.aviso {
+      display: block;
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
     .lista-section {
       margin-top: 20px;
     }
@@ -213,6 +236,34 @@
     .participante .nome {
       color: rgba(255, 255, 255, 0.85);
       font-size: 0.9rem;
+      flex: 1;
+    }
+
+    .participante .badge-nomes {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .participante-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      object-fit: cover;
+      margin-left: 8px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.2s;
+    }
+
+    .participante-img:hover {
+      transform: scale(1.1);
     }
 
     .vazio {
@@ -271,22 +322,6 @@
       object-fit: contain;
     }
 
-    .participante-img {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      object-fit: cover;
-      margin-left: auto;
-      flex-shrink: 0;
-      cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: transform 0.2s;
-    }
-
-    .participante-img:hover {
-      transform: scale(1.1);
-    }
-
     .modal-overlay {
       display: none;
       position: fixed;
@@ -309,6 +344,22 @@
       object-fit: contain;
     }
 
+    .loading-spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 480px) {
       .card {
         padding: 28px 20px;
@@ -323,10 +374,15 @@
   <div class="container">
     <div class="card">
       <h1>Sorteio John</h1>
-      <p class="subtitle">Cadastre-se para participar</p>
+      <p class="subtitle">Envie seu comprovante de depósito para participar</p>
+
+      <div class="info-box">
+        A cada <strong>R$20,00</strong> depositado, você ganha <strong>1 nome</strong> na lista do sorteio.<br>
+        Ex: R$100,00 = 5 nomes, R$50,00 = 2 nomes
+      </div>
 
       <div class="counter">
-        Participantes cadastrados: <span id="total">0</span>
+        Nomes na lista: <span id="total">0</span>
       </div>
 
       <form id="form-cadastro">
@@ -341,24 +397,19 @@
         </div>
 
         <div class="form-group">
-          <label for="palavra_chave">Palavra-chave</label>
-          <input type="text" id="palavra_chave" placeholder="Digite a palavra-chave da live" required minlength="3">
-        </div>
-
-        <div class="form-group">
-          <label for="print">Print do cadastro na plataforma</label>
+          <label for="print">Print do comprovante de depósito</label>
           <div class="upload-area" id="upload-area">
             <input type="file" id="print" accept="image/*" required>
             <div class="upload-placeholder" id="upload-placeholder">
               <span class="upload-icon">&#128247;</span>
-              <span>Clique ou arraste o print aqui</span>
-              <span class="upload-hint">JPG, PNG ou GIF (max. 5MB)</span>
+              <span>Clique ou arraste o comprovante aqui</span>
+              <span class="upload-hint">O depósito deve estar com status "Sucesso"</span>
             </div>
             <img id="preview-img" class="preview-img" style="display:none;" alt="Preview">
           </div>
         </div>
 
-        <button type="submit" class="btn" id="btn-enviar">Participar do Sorteio</button>
+        <button type="submit" class="btn" id="btn-enviar">Enviar Comprovante</button>
       </form>
 
       <div id="mensagem" class="msg"></div>
@@ -454,14 +505,18 @@
         return;
       }
 
+      let numero = 1;
       listaEl.innerHTML = participantes
-        .map((p, i) =>
-          `<div class="participante">
-            <div class="numero">${p.id}</div>
+        .map((p) => {
+          const idx = numero;
+          numero++;
+          return `<div class="participante">
+            <div class="numero">${idx}</div>
             <div class="nome">${escapeHtml(p.nome_completo)}</div>
+            <span class="badge-nomes">${p.total_nomes}x</span>
             <img class="participante-img" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print">
-          </div>`
-        )
+          </div>`;
+        })
         .join('');
     }
 
@@ -476,18 +531,17 @@
       mensagem.className = `msg ${tipo}`;
       setTimeout(() => {
         mensagem.className = 'msg';
-      }, 4000);
+      }, 6000);
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       btnEnviar.disabled = true;
-      btnEnviar.textContent = 'Enviando...';
+      btnEnviar.innerHTML = '<span class="loading-spinner"></span>Analisando comprovante...';
 
       const formData = new FormData();
       formData.append('nome_completo', document.getElementById('nome_completo').value);
       formData.append('whatsapp', document.getElementById('whatsapp').value);
-      formData.append('palavra_chave', document.getElementById('palavra_chave').value);
       formData.append('print', printInput.files[0]);
 
       try {
@@ -499,12 +553,18 @@
         const data = await res.json();
 
         if (res.ok) {
-          mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+          const valor = data.valor_detectado.toFixed(2).replace('.', ',');
+          mostrarMensagem(
+            `Depósito de R$${valor} validado! Você ganhou ${data.quantidade_nomes} nome(s) na lista.`,
+            'sucesso'
+          );
           totalEl.textContent = data.total;
           form.reset();
           previewImg.style.display = 'none';
           uploadPlaceholder.style.display = 'flex';
           carregarParticipantes();
+        } else if (data.ocr_falhou) {
+          mostrarMensagem(data.erro, 'aviso');
         } else {
           mostrarMensagem(data.erro, 'erro');
         }
@@ -512,7 +572,7 @@
         mostrarMensagem('Erro de conexão. Tente novamente.', 'erro');
       } finally {
         btnEnviar.disabled = false;
-        btnEnviar.textContent = 'Participar do Sorteio';
+        btnEnviar.textContent = 'Enviar Comprovante';
       }
     });
 
