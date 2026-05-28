@@ -835,8 +835,10 @@
         setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
         return;
       }
-      // Ocultar campo Boa Sorte
+      // Apagar e ocultar campo Boa Sorte
       const campoOculto = document.querySelector('.campo-oculto');
+      const inputEl = document.getElementById('numeros-escolhidos');
+      if (inputEl) inputEl.value = '';
       if (campoOculto) campoOculto.removeAttribute('open');
 
       vencedores = [];
