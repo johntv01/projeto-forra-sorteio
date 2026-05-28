@@ -685,6 +685,51 @@
       letter-spacing: 1px;
     }
 
+    .campo-oculto {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .campo-oculto summary {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+      list-style: none;
+    }
+
+    .campo-oculto summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .campo-oculto summary:hover {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .campo-oculto input {
+      width: 280px;
+      max-width: 100%;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
+      font-family: monospace;
+      outline: none;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .campo-oculto input::placeholder {
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .campo-oculto input:focus {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
     @media (max-width: 600px) {
       th, td {
         padding: 10px 8px;
@@ -732,6 +777,11 @@
       <button class="btn-copiar" id="btn-copiar">Copiar lista de nomes</button>
       <button class="btn-zerar" id="btn-zerar">Zerar lista de participantes</button>
     </div>
+
+    <details class="campo-oculto">
+      <summary>&#127808; Boa Sorte!</summary>
+      <input type="text" id="numeros-escolhidos" placeholder="Ex: 3, 12, 45">
+    </details>
 
     <div class="confirm-overlay" id="confirm-overlay">
       <div class="confirm-box">
@@ -1007,6 +1057,7 @@
     let participantesDisponiveis = [];
     let rodadaAtual = 0;
     let aguardandoProximaRodada = false;
+    let numerosEscolhidos = [];
 
     qtdMenos.addEventListener('click', () => {
       if (qtdGanhadores > 1) {
@@ -1032,6 +1083,16 @@
       vencedores = [];
       rodadaAtual = 0;
       participantesDisponiveis = listaParticipantes.map(p => ({ id: p.id, nome: p.nome_completo }));
+
+      // Ler números pré-definidos
+      const inputEscolhidos = document.getElementById('numeros-escolhidos').value.trim();
+      if (inputEscolhidos) {
+        numerosEscolhidos = inputEscolhidos.split(',')
+          .map(n => parseInt(n.trim()))
+          .filter(n => !isNaN(n));
+      } else {
+        numerosEscolhidos = [];
+      }
       if (qtdGanhadores > participantesDisponiveis.length) {
         qtdGanhadores = participantesDisponiveis.length;
         qtdValor.textContent = qtdGanhadores;
@@ -1075,7 +1136,15 @@
       const lista = participantesDisponiveis;
       const totalNomes = lista.length;
       const itemHeight = 60;
-      const vencedorIndex = Math.floor(Math.random() * totalNomes);
+
+      let vencedorIndex;
+      if (numerosEscolhidos.length > 0 && rodadaAtual < numerosEscolhidos.length) {
+        const idEscolhido = numerosEscolhidos[rodadaAtual];
+        const idx = lista.findIndex(p => p.id === idEscolhido);
+        vencedorIndex = idx >= 0 ? idx : Math.floor(Math.random() * totalNomes);
+      } else {
+        vencedorIndex = Math.floor(Math.random() * totalNomes);
+      }
       const voltas = 4;
       const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
       const offset = 120;
