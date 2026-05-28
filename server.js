@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const Tesseract = require('tesseract.js');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'sorteio.db');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
