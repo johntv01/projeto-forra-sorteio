@@ -973,8 +973,9 @@
         setTimeout(() => { btnCopiar.textContent = 'Copiar lista de nomes'; }, 2000);
         return;
       }
-      const texto = listaParticipantes
-        .map((p, i) => `${i + 1}. ${p.nome_completo}`)
+      const ordenada = [...listaParticipantes].sort((a, b) => a.id - b.id);
+      const texto = ordenada
+        .map(p => `${p.id}. ${p.nome_completo}`)
         .join('\n');
       await navigator.clipboard.writeText(texto);
       btnCopiar.textContent = 'Copiado!';
