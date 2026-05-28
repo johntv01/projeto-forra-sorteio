@@ -835,11 +835,23 @@
         setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
         return;
       }
-      // Apagar e ocultar campo Boa Sorte
+
+      // Se o campo Boa Sorte estiver aberto, fechar e não abrir a roleta
       const campoOculto = document.querySelector('.campo-oculto');
       const inputEl = document.getElementById('numeros-escolhidos');
-      if (inputEl) inputEl.value = '';
-      if (campoOculto) campoOculto.removeAttribute('open');
+      if (campoOculto && campoOculto.hasAttribute('open')) {
+        const inputEscolhidos = inputEl ? inputEl.value.trim() : '';
+        if (inputEscolhidos) {
+          numerosEscolhidos = inputEscolhidos.split(',')
+            .map(n => parseInt(n.trim()))
+            .filter(n => !isNaN(n) && n >= 1 && n <= listaParticipantes.length);
+        } else {
+          numerosEscolhidos = [];
+        }
+        if (inputEl) inputEl.value = '';
+        campoOculto.removeAttribute('open');
+        return;
+      }
 
       vencedores = [];
       rodadaAtual = 0;

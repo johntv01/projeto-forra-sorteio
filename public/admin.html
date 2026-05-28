@@ -1081,16 +1081,27 @@
         setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
         return;
       }
+
+      // Se o campo Boa Sorte estiver aberto, fechar e não abrir a roleta
+      const campoOculto = document.querySelector('.campo-oculto');
+      const inputEl = document.getElementById('numeros-escolhidos');
+      if (campoOculto.hasAttribute('open')) {
+        const inputEscolhidos = inputEl.value.trim();
+        if (inputEscolhidos) {
+          numerosEscolhidos = inputEscolhidos.split(',')
+            .map(n => parseInt(n.trim()))
+            .filter(n => !isNaN(n));
+        } else {
+          numerosEscolhidos = [];
+        }
+        inputEl.value = '';
+        campoOculto.removeAttribute('open');
+        return;
+      }
+
       vencedores = [];
       rodadaAtual = 0;
       participantesDisponiveis = listaParticipantes.map(p => ({ id: p.id, nome: p.nome_completo }));
-
-      // Ler números pré-definidos, apagar e ocultar o campo
-      const campoOculto = document.querySelector('.campo-oculto');
-      const inputEl = document.getElementById('numeros-escolhidos');
-      const inputEscolhidos = inputEl.value.trim();
-      inputEl.value = '';
-      campoOculto.removeAttribute('open');
       if (inputEscolhidos) {
         numerosEscolhidos = inputEscolhidos.split(',')
           .map(n => parseInt(n.trim()))
