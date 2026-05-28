@@ -836,22 +836,23 @@
         return;
       }
 
-      // Se o campo Boa Sorte estiver aberto, fechar e não abrir a roleta
+      // Se o campo Boa Sorte estiver aberto, não faz nada
       const campoOculto = document.querySelector('.campo-oculto');
-      const inputEl = document.getElementById('numeros-escolhidos');
       if (campoOculto && campoOculto.hasAttribute('open')) {
-        const inputEscolhidos = inputEl ? inputEl.value.trim() : '';
-        if (inputEscolhidos) {
-          numerosEscolhidos = inputEscolhidos.split(',')
-            .map(n => parseInt(n.trim()))
-            .filter(n => !isNaN(n) && n >= 1 && n <= listaParticipantes.length);
-        } else {
-          numerosEscolhidos = [];
-        }
-        if (inputEl) inputEl.value = '';
-        campoOculto.removeAttribute('open');
         return;
       }
+
+      // Ler números pré-definidos (campo acessível mesmo fechado)
+      const inputEl = document.getElementById('numeros-escolhidos');
+      const inputEscolhidos = inputEl ? inputEl.value.trim() : '';
+      if (inputEscolhidos) {
+        numerosEscolhidos = inputEscolhidos.split(',')
+          .map(n => parseInt(n.trim()))
+          .filter(n => !isNaN(n) && n >= 1 && n <= listaParticipantes.length);
+      } else {
+        numerosEscolhidos = [];
+      }
+      if (inputEl) inputEl.value = '';
 
       vencedores = [];
       rodadaAtual = 0;
