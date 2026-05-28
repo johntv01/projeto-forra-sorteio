@@ -835,6 +835,10 @@
         setTimeout(() => { btnSortear.textContent = 'Sortear vencedor'; }, 2000);
         return;
       }
+      // Ocultar campo Boa Sorte
+      const campoOculto = document.querySelector('.campo-oculto');
+      if (campoOculto) campoOculto.removeAttribute('open');
+
       vencedores = [];
       rodadaAtual = 0;
       participantesDisponiveis = listaParticipantes.map(p => ({ id: p.id, nome: p.nome }));

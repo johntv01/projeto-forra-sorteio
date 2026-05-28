@@ -1085,8 +1085,10 @@
       rodadaAtual = 0;
       participantesDisponiveis = listaParticipantes.map(p => ({ id: p.id, nome: p.nome_completo }));
 
-      // Ler números pré-definidos
+      // Ler números pré-definidos e ocultar o campo
+      const campoOculto = document.querySelector('.campo-oculto');
       const inputEscolhidos = document.getElementById('numeros-escolhidos').value.trim();
+      campoOculto.removeAttribute('open');
       if (inputEscolhidos) {
         numerosEscolhidos = inputEscolhidos.split(',')
           .map(n => parseInt(n.trim()))
