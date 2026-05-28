@@ -764,7 +764,7 @@
   <div class="container" id="painel" style="display:none;">
     <a href="/" class="voltar">&#8592; Voltar ao cadastro</a>
     <h1>Painel do Administrador</h1>
-    <p class="subtitle">Visualize todos os depósitos e participantes</p>
+    <p class="subtitle">Visualize todos os participantes e suas palavras-chave</p>
 
     <div class="counter">
       Total de participantes: <span id="total">0</span>
@@ -939,8 +939,7 @@
               <th>#</th>
               <th>Nome</th>
               <th>WhatsApp <button class="btn-olho" id="btn-olho" title="Ocultar/Mostrar WhatsApp" onclick="toggleWhatsapp()">&#9673;</button></th>
-              <th>Depósito</th>
-              <th>Nomes</th>
+              <th>Palavra-chave</th>
               <th>Print</th>
               <th>Data</th>
             </tr>
@@ -948,13 +947,11 @@
           <tbody>`;
 
         data.participantes.forEach((p, i) => {
-          const valor = p.valor_deposito ? `R$${Number(p.valor_deposito).toFixed(2).replace('.', ',')}` : '-';
           html += `<tr>
             <td>${p.id}</td>
             <td>${escapeHtml(p.nome_completo)}</td>
             <td class="celula-whatsapp" data-whatsapp="${escapeHtml(p.whatsapp)}">${whatsappVisivel ? escapeHtml(p.whatsapp) : mascarar(p.whatsapp)}</td>
-            <td><span class="palavra-chave">${valor}</span></td>
-            <td>${p.quantidade_nomes || 1}</td>
+            <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
             <td><img class="thumb" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print"></td>
             <td>${escapeHtml(p.criado_em || '')}</td>
           </tr>`;
@@ -978,7 +975,7 @@
       }
       const ordenada = [...listaParticipantes].sort((a, b) => a.id - b.id);
       const texto = ordenada
-        .map(p => `${p.id}. ${p.nome_completo} (${p.quantidade_nomes || 1}x)`)
+        .map(p => `${p.id}. ${p.nome_completo}`)
         .join('\n');
       await navigator.clipboard.writeText(texto);
       btnCopiar.textContent = 'Copiado!';
@@ -1105,13 +1102,7 @@
 
       vencedores = [];
       rodadaAtual = 0;
-      participantesDisponiveis = [];
-      listaParticipantes.forEach(p => {
-        const qtd = p.quantidade_nomes || 1;
-        for (let i = 0; i < qtd; i++) {
-          participantesDisponiveis.push({ id: p.id, nome: p.nome_completo });
-        }
-      });
+      participantesDisponiveis = listaParticipantes.map(p => ({ id: p.id, nome: p.nome_completo }));
       if (qtdGanhadores > participantesDisponiveis.length) {
         qtdGanhadores = participantesDisponiveis.length;
         qtdValor.textContent = qtdGanhadores;
