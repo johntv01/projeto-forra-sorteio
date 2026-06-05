@@ -946,7 +946,7 @@
           vencedores.push({ id: vencedor.id, nome: vencedor.nome });
           rodadaAtual++;
 
-          participantesDisponiveis = participantesDisponiveis.filter(p => p.id !== vencedor.id);
+          participantesDisponiveis = participantesDisponiveis.filter(p => p.nome !== vencedor.nome);
 
           const items = roletaLista.querySelectorAll('.roleta-item');
           const itemParado = Math.round(Math.abs(destino) / itemHeight);
