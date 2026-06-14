@@ -479,7 +479,10 @@
       }, 4000);
     }
 
+    const modoAdmin = new URLSearchParams(window.location.search).get('modo') === 'admin';
+
     function jaSecadastrouHoje() {
+      if (modoAdmin) return false;
       const dados = localStorage.getItem('sorteio_cadastro');
       if (!dados) return false;
       const hoje = new Date().toISOString().slice(0, 10);
