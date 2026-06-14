@@ -479,8 +479,26 @@
       }, 4000);
     }
 
+    function jaSecadastrouHoje() {
+      const dados = localStorage.getItem('sorteio_cadastro');
+      if (!dados) return false;
+      const hoje = new Date().toISOString().slice(0, 10);
+      return dados === hoje;
+    }
+
+    function marcarCadastroHoje() {
+      const hoje = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('sorteio_cadastro', hoje);
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (jaSecadastrouHoje()) {
+        mostrarMensagem('Você já se cadastrou.', 'erro');
+        return;
+      }
+
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando...';
 
@@ -499,6 +517,7 @@
         const data = await res.json();
 
         if (res.ok) {
+          marcarCadastroHoje();
           mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
           totalEl.textContent = data.total;
           form.reset();

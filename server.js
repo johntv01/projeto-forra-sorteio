@@ -51,7 +51,7 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS participantes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome_completo TEXT NOT NULL UNIQUE,
-      whatsapp TEXT NOT NULL,
+      whatsapp TEXT NOT NULL UNIQUE,
       palavra_chave TEXT NOT NULL,
       print_path TEXT NOT NULL,
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
@@ -137,7 +137,7 @@ app.post('/api/participantes', (req, res) => {
     } catch (err) {
       fs.unlinkSync(req.file.path);
       if (err.message.includes('UNIQUE constraint failed')) {
-        return res.status(409).json({ erro: 'Você já está cadastrado.' });
+        return res.status(409).json({ erro: 'Você já se cadastrou.' });
       }
       res.status(500).json({ erro: 'Erro interno do servidor.' });
     }
