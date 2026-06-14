@@ -146,7 +146,7 @@ app.post('/api/participantes', (req, res) => {
 
 app.get('/api/participantes', (req, res) => {
   const result = db.exec(
-    'SELECT id, nome_completo, print_path, criado_em FROM participantes ORDER BY criado_em DESC'
+    'SELECT id, nome_completo, criado_em FROM participantes ORDER BY criado_em DESC'
   );
 
   let participantes = [];
