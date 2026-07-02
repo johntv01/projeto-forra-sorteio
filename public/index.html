@@ -480,17 +480,26 @@
 
     const modoAdmin = new URLSearchParams(window.location.search).get('modo') === 'admin';
 
+    function getPeriodoSorteio() {
+      const agora = new Date();
+      const hora = agora.getHours();
+      if (hora >= 22) {
+        const amanha = new Date(agora);
+        amanha.setDate(amanha.getDate() + 1);
+        return amanha.toISOString().slice(0, 10);
+      }
+      return agora.toISOString().slice(0, 10);
+    }
+
     function jaSecadastrouHoje() {
       if (modoAdmin) return false;
       const dados = localStorage.getItem('sorteio_cadastro');
       if (!dados) return false;
-      const hoje = new Date().toISOString().slice(0, 10);
-      return dados === hoje;
+      return dados === getPeriodoSorteio();
     }
 
     function marcarCadastroHoje() {
-      const hoje = new Date().toISOString().slice(0, 10);
-      localStorage.setItem('sorteio_cadastro', hoje);
+      localStorage.setItem('sorteio_cadastro', getPeriodoSorteio());
     }
 
     form.addEventListener('submit', async (e) => {
