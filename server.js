@@ -65,7 +65,7 @@ function salvarDb() {
   fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
 
-const ADMIN_PASSWORD = 'monstro20';
+const ADMIN_PASSWORDS = ['monstro20', 'trejao20'];
 const tokens = new Set();
 
 app.use(express.json());
@@ -74,7 +74,7 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 
 app.post('/api/admin/login', (req, res) => {
   const { senha } = req.body;
-  if (senha === ADMIN_PASSWORD) {
+  if (ADMIN_PASSWORDS.includes(senha)) {
     const token = require('crypto').randomBytes(32).toString('hex');
     tokens.add(token);
     res.json({ sucesso: true, token });
