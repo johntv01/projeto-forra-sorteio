@@ -820,6 +820,7 @@
 
     let listaParticipantes = [];
     let numerosEscolhidos = [];
+    let roletaOrdem = [];
 
     const textareaLista = document.getElementById('textarea-lista');
     const btnImportar = document.getElementById('btn-importar');
@@ -1035,9 +1036,10 @@
     }
 
     function montarRoleta(participantes) {
+      roletaOrdem = [...participantes].sort(() => Math.random() - 0.5);
       let html = '';
       for (let rep = 0; rep < 10; rep++) {
-        participantes.forEach(p => {
+        roletaOrdem.forEach(p => {
           html += `<div class="roleta-item">${escapeHtml(p.nome)}</div>`;
         });
       }
@@ -1049,17 +1051,18 @@
 
     function iniciarGiro() {
       const lista = participantesDisponiveis;
-      const totalNomes = lista.length;
+      const totalNomes = roletaOrdem.length;
       const itemHeight = 60;
 
-      let vencedorIndex;
+      let vencedor;
       if (numerosEscolhidos.length > 0 && rodadaAtual < numerosEscolhidos.length) {
         const idEscolhido = numerosEscolhidos[rodadaAtual];
         const idx = lista.findIndex(p => p.id === idEscolhido);
-        vencedorIndex = idx >= 0 ? idx : Math.floor(Math.random() * totalNomes);
+        vencedor = idx >= 0 ? lista[idx] : lista[Math.floor(Math.random() * lista.length)];
       } else {
-        vencedorIndex = Math.floor(Math.random() * totalNomes);
+        vencedor = lista[Math.floor(Math.random() * lista.length)];
       }
+      const vencedorIndex = roletaOrdem.findIndex(p => p.id === vencedor.id);
       const voltas = 4;
       const posicaoFinal = (voltas * totalNomes + vencedorIndex) * itemHeight;
       const offset = 120;
@@ -1093,7 +1096,6 @@
         if (progresso < 1) {
           requestAnimationFrame(animar);
         } else {
-          const vencedor = lista[vencedorIndex];
           vencedores.push({ id: vencedor.id, nome: vencedor.nome });
           rodadaAtual++;
 
