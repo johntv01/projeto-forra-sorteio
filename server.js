@@ -65,7 +65,7 @@ function salvarDb() {
   fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
 
-const ADMIN_PASSWORDS = ['monstro20', 'trejao20', 'bruno2020'];
+const ADMIN_PASSWORDS = ['monstro20', 'trejao20'];
 const tokens = new Set();
 
 app.use(express.json());
