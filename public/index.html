@@ -478,37 +478,8 @@
       }, 4000);
     }
 
-    const modoAdmin = new URLSearchParams(window.location.search).get('modo') === 'admin';
-
-    function getPeriodoSorteio() {
-      const agora = new Date();
-      const hora = agora.getHours();
-      if (hora >= 22) {
-        const amanha = new Date(agora);
-        amanha.setDate(amanha.getDate() + 1);
-        return amanha.toISOString().slice(0, 10);
-      }
-      return agora.toISOString().slice(0, 10);
-    }
-
-    function jaSecadastrouHoje() {
-      if (modoAdmin) return false;
-      const dados = localStorage.getItem('sorteio_cadastro');
-      if (!dados) return false;
-      return dados === getPeriodoSorteio();
-    }
-
-    function marcarCadastroHoje() {
-      localStorage.setItem('sorteio_cadastro', getPeriodoSorteio());
-    }
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      if (jaSecadastrouHoje()) {
-        mostrarMensagem('Você já se cadastrou.', 'erro');
-        return;
-      }
 
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando...';
@@ -528,7 +499,6 @@
         const data = await res.json();
 
         if (res.ok) {
-          marcarCadastroHoje();
           mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
           totalEl.textContent = data.total;
           form.reset();
