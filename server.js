@@ -36,6 +36,7 @@ const upload = multer({
 });
 
 let db;
+let rodada = 1;
 
 async function initDb() {
   const SQL = await initSqlJs();
@@ -133,7 +134,7 @@ app.post('/api/participantes', (req, res) => {
       salvarDb();
       const result = db.exec('SELECT COUNT(*) as total FROM participantes');
       const total = result[0].values[0][0];
-      res.json({ sucesso: true, total });
+      res.json({ sucesso: true, total, rodada });
     } catch (err) {
       fs.unlinkSync(req.file.path);
       if (err.message.includes('UNIQUE constraint failed')) {
@@ -162,7 +163,7 @@ app.get('/api/participantes', (req, res) => {
   const countResult = db.exec('SELECT COUNT(*) FROM participantes');
   const total = countResult.length > 0 ? countResult[0].values[0][0] : 0;
 
-  res.json({ participantes, total });
+  res.json({ participantes, total, rodada });
 });
 
 app.get('/api/admin/participantes', verificarAdmin, (req, res) => {
@@ -212,6 +213,7 @@ app.delete('/api/admin/zerar', verificarAdmin, (req, res) => {
       });
     }
     db.run('DELETE FROM participantes');
+    rodada++;
     salvarDb();
     res.json({ sucesso: true });
   } catch {

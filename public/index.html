@@ -439,15 +439,6 @@
       modal.classList.add('ativo');
     }
 
-    async function carregarParticipantes() {
-      try {
-        const res = await fetch('/api/participantes');
-        const data = await res.json();
-        totalEl.textContent = data.total;
-        renderizarLista(data.participantes);
-      } catch {}
-    }
-
     function renderizarLista(participantes) {
       if (participantes.length === 0) {
         listaEl.innerHTML = '<p class="vazio">Nenhum participante ainda.</p>';
@@ -506,8 +497,27 @@
       });
     }
 
+    let rodadaAtual = null;
+
+    function jaSecadastrou() {
+      try {
+        const dados = localStorage.getItem('sorteio_cadastro');
+        if (!dados) return false;
+        return dados === String(rodadaAtual);
+      } catch { return false; }
+    }
+
+    function marcarCadastro(rodada) {
+      try { localStorage.setItem('sorteio_cadastro', String(rodada)); } catch {}
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      if (jaSecadastrou()) {
+        mostrarMensagem('Você já se cadastrou neste sorteio.', 'erro');
+        return;
+      }
 
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando...';
@@ -530,6 +540,7 @@
         const data = await res.json();
 
         if (res.ok) {
+          marcarCadastro(data.rodada);
           mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
           totalEl.textContent = data.total;
           form.reset();
@@ -546,6 +557,16 @@
         btnEnviar.textContent = 'Participar do Sorteio';
       }
     });
+
+    async function carregarParticipantes() {
+      try {
+        const res = await fetch('/api/participantes');
+        const data = await res.json();
+        totalEl.textContent = data.total;
+        rodadaAtual = data.rodada;
+        renderizarLista(data.participantes);
+      } catch {}
+    }
 
     carregarParticipantes();
   </script>
