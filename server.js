@@ -186,6 +186,22 @@ app.get('/api/admin/participantes', verificarAdmin, (req, res) => {
   res.json({ participantes, total });
 });
 
+app.delete('/api/admin/participante/:id', verificarAdmin, (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const result = db.exec('SELECT print_path FROM participantes WHERE id = ?', [id]);
+    if (result.length > 0) {
+      const filePath = path.join(UPLOADS_DIR, result[0].values[0][0]);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    db.run('DELETE FROM participantes WHERE id = ?', [id]);
+    salvarDb();
+    res.json({ sucesso: true });
+  } catch {
+    res.status(500).json({ erro: 'Erro ao remover participante.' });
+  }
+});
+
 app.delete('/api/admin/zerar', verificarAdmin, (req, res) => {
   try {
     const prints = db.exec('SELECT print_path FROM participantes');

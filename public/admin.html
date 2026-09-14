@@ -680,6 +680,26 @@
       color: #c4b5fd;
     }
 
+    .btn-remover {
+      background: none;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-remover:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #f87171;
+    }
+
     .whatsapp-oculto {
       color: rgba(255, 255, 255, 0.3);
       letter-spacing: 1px;
@@ -942,18 +962,20 @@
               <th>Palavra-chave</th>
               <th>Print</th>
               <th>Data</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>`;
 
         data.participantes.forEach((p, i) => {
-          html += `<tr>
+          html += `<tr id="row-${p.id}">
             <td>${p.id}</td>
             <td>${escapeHtml(p.nome_completo)}</td>
             <td class="celula-whatsapp" data-whatsapp="${escapeHtml(p.whatsapp)}">${whatsappVisivel ? escapeHtml(p.whatsapp) : mascarar(p.whatsapp)}</td>
             <td><span class="palavra-chave">${escapeHtml(p.palavra_chave)}</span></td>
             <td><img class="thumb" src="/uploads/${escapeHtml(p.print_path)}" onclick="abrirModal(this.src)" alt="Print"></td>
             <td>${escapeHtml(p.criado_em || '')}</td>
+            <td><button class="btn-remover" onclick="removerParticipante(${p.id}, '${escapeHtml(p.nome_completo).replace(/'/g, "\\'")}')">&#10005;</button></td>
           </tr>`;
         });
 
@@ -1289,6 +1311,17 @@
         btnConfirmar.textContent = 'Sim, zerar tudo';
       }
     });
+
+    async function removerParticipante(id, nome) {
+      if (!confirm(`Remover "${nome}" da lista?`)) return;
+      try {
+        const res = await fetch(`/api/admin/participante/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': adminToken }
+        });
+        if (res.ok) carregar();
+      } catch {}
+    }
 
   </script>
 </body>
