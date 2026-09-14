@@ -478,17 +478,48 @@
       }, 4000);
     }
 
+    function comprimirImagem(file, maxSizeMB = 4.5) {
+      return new Promise((resolve) => {
+        if (file.size <= maxSizeMB * 1024 * 1024) {
+          resolve(file);
+          return;
+        }
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          const maxDim = 1920;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob((blob) => {
+            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+          }, 'image/jpeg', 0.8);
+        };
+        img.src = url;
+      });
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando...';
 
+      const printOriginal = printInput.files[0];
+      const printComprimido = await comprimirImagem(printOriginal);
+
       const formData = new FormData();
       formData.append('nome_completo', document.getElementById('nome_completo').value);
       formData.append('whatsapp', document.getElementById('whatsapp').value);
       formData.append('palavra_chave', document.getElementById('palavra_chave').value);
-      formData.append('print', printInput.files[0]);
+      formData.append('print', printComprimido);
 
       try {
         const res = await fetch('/api/participantes', {
