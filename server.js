@@ -69,8 +69,13 @@ async function initDb() {
   const result = db.exec("SELECT valor FROM config WHERE chave = 'rodada'");
   if (result.length > 0) {
     rodada = parseInt(result[0].values[0][0], 10);
+    if (rodada <= 10) {
+      rodada = Date.now();
+      db.run("UPDATE config SET valor = ? WHERE chave = 'rodada'", [String(rodada)]);
+    }
   } else {
-    db.run("INSERT INTO config (chave, valor) VALUES ('rodada', '1')");
+    rodada = Date.now();
+    db.run("INSERT INTO config (chave, valor) VALUES ('rodada', ?)", [String(rodada)]);
   }
 
   salvarDb();
