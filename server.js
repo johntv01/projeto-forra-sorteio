@@ -66,6 +66,13 @@ async function initDb() {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS bloqueios (
+      fingerprint TEXT PRIMARY KEY,
+      bloqueado_em INTEGER NOT NULL
+    )
+  `);
+
   const result = db.exec("SELECT valor FROM config WHERE chave = 'rodada'");
   if (result.length > 0) {
     rodada = parseInt(result[0].values[0][0], 10);
@@ -132,6 +139,21 @@ app.post('/api/participantes', (req, res) => {
       return res.status(400).json({ erro: 'Envie o print do cadastro.' });
     }
 
+    const fingerprint = req.body.fingerprint;
+    if (fingerprint) {
+      const bloqueio = db.exec('SELECT bloqueado_em FROM bloqueios WHERE fingerprint = ?', [fingerprint]);
+      if (bloqueio.length > 0) {
+        const bloqueadoEm = bloqueio[0].values[0][0];
+        const agora = Date.now();
+        const umaHora = 60 * 60 * 1000;
+        if (agora - bloqueadoEm < umaHora) {
+          const restante = Math.ceil((umaHora - (agora - bloqueadoEm)) / 60000);
+          if (req.file) fs.unlinkSync(req.file.path);
+          return res.status(429).json({ erro: `Aguarde ${restante} minuto(s) para se cadastrar novamente.`, restante });
+        }
+      }
+    }
+
     const nomeLimpo = nome_completo.trim();
     const whatsappLimpo = whatsapp.trim();
     const palavraLimpa = palavra_chave.trim();
@@ -151,6 +173,9 @@ app.post('/api/participantes', (req, res) => {
         'INSERT INTO participantes (nome_completo, whatsapp, palavra_chave, print_path) VALUES (?, ?, ?, ?)',
         [nomeLimpo, whatsappLimpo, palavraLimpa, req.file.filename]
       );
+      if (fingerprint) {
+        db.run('INSERT OR REPLACE INTO bloqueios (fingerprint, bloqueado_em) VALUES (?, ?)', [fingerprint, Date.now()]);
+      }
       salvarDb();
       const result = db.exec('SELECT COUNT(*) as total FROM participantes');
       const total = result[0].values[0][0];
@@ -163,6 +188,23 @@ app.post('/api/participantes', (req, res) => {
       res.status(500).json({ erro: 'Erro interno do servidor.' });
     }
   });
+});
+
+app.post('/api/verificar-bloqueio', (req, res) => {
+  const { fingerprint } = req.body;
+  if (!fingerprint) return res.json({ bloqueado: false });
+
+  const bloqueio = db.exec('SELECT bloqueado_em FROM bloqueios WHERE fingerprint = ?', [fingerprint]);
+  if (bloqueio.length > 0) {
+    const bloqueadoEm = bloqueio[0].values[0][0];
+    const agora = Date.now();
+    const umaHora = 60 * 60 * 1000;
+    if (agora - bloqueadoEm < umaHora) {
+      const restante = Math.ceil((umaHora - (agora - bloqueadoEm)) / 60000);
+      return res.json({ bloqueado: true, restante });
+    }
+  }
+  res.json({ bloqueado: false });
 });
 
 app.get('/api/participantes', (req, res) => {
@@ -233,6 +275,7 @@ app.delete('/api/admin/zerar', verificarAdmin, (req, res) => {
       });
     }
     db.run('DELETE FROM participantes');
+    db.run('DELETE FROM bloqueios');
     rodada++;
     db.run("UPDATE config SET valor = ? WHERE chave = 'rodada'", [String(rodada)]);
     salvarDb();

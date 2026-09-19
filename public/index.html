@@ -497,27 +497,61 @@
       });
     }
 
-    let rodadaAtual = null;
-
-    function jaSecadastrou() {
+    async function gerarFingerprint() {
+      const partes = [];
+      partes.push(navigator.userAgent);
+      partes.push(navigator.language);
+      partes.push(screen.width + 'x' + screen.height);
+      partes.push(screen.colorDepth);
+      partes.push(new Date().getTimezoneOffset());
+      partes.push(navigator.hardwareConcurrency || 'unknown');
       try {
-        const dados = localStorage.getItem('sorteio_cadastro');
-        if (!dados) return false;
-        return dados === String(rodadaAtual);
-      } catch { return false; }
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('fingerprint', 2, 2);
+        partes.push(canvas.toDataURL());
+      } catch {}
+      try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        if (gl) {
+          partes.push(gl.getParameter(gl.RENDERER));
+          partes.push(gl.getParameter(gl.VENDOR));
+        }
+      } catch {}
+      const texto = partes.join('|||');
+      const buffer = new TextEncoder().encode(texto);
+      const hash = await crypto.subtle.digest('SHA-256', buffer);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function marcarCadastro(rodada) {
-      try { localStorage.setItem('sorteio_cadastro', String(rodada)); } catch {}
+    let deviceFingerprint = null;
+    let bloqueadoAte = null;
+
+    async function verificarBloqueio() {
+      if (!deviceFingerprint) deviceFingerprint = await gerarFingerprint();
+      try {
+        const res = await fetch('/api/verificar-bloqueio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fingerprint: deviceFingerprint })
+        });
+        const data = await res.json();
+        if (data.bloqueado) {
+          mostrarMensagem(`Você já se cadastrou neste sorteio. Aguarde ${data.restante} minuto(s).`, 'erro');
+          return true;
+        }
+      } catch {}
+      return false;
     }
+
+    verificarBloqueio();
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      if (jaSecadastrou()) {
-        mostrarMensagem('Você já se cadastrou neste sorteio.', 'erro');
-        return;
-      }
+      if (await verificarBloqueio()) return;
 
       btnEnviar.disabled = true;
       btnEnviar.textContent = 'Enviando...';
@@ -525,11 +559,14 @@
       const printOriginal = printInput.files[0];
       const printComprimido = await comprimirImagem(printOriginal);
 
+      if (!deviceFingerprint) deviceFingerprint = await gerarFingerprint();
+
       const formData = new FormData();
       formData.append('nome_completo', document.getElementById('nome_completo').value);
       formData.append('whatsapp', document.getElementById('whatsapp').value);
       formData.append('palavra_chave', document.getElementById('palavra_chave').value);
       formData.append('print', printComprimido);
+      formData.append('fingerprint', deviceFingerprint);
 
       try {
         const res = await fetch('/api/participantes', {
@@ -540,7 +577,6 @@
         const data = await res.json();
 
         if (res.ok) {
-          marcarCadastro(data.rodada);
           mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
           totalEl.textContent = data.total;
           form.reset();
@@ -548,7 +584,11 @@
           uploadPlaceholder.style.display = 'flex';
           carregarParticipantes();
         } else {
-          mostrarMensagem(data.erro, 'erro');
+          if (data.restante) {
+            mostrarMensagem(`Você já se cadastrou neste sorteio. Aguarde ${data.restante} minuto(s).`, 'erro');
+          } else {
+            mostrarMensagem(data.erro, 'erro');
+          }
         }
       } catch {
         mostrarMensagem('Erro de conexão. Tente novamente.', 'erro');
