@@ -528,8 +528,10 @@
 
     let deviceFingerprint = null;
     let bloqueadoAte = null;
+    const modoAdmin = new URLSearchParams(window.location.search).get('modo') === 'admin';
 
     async function verificarBloqueio() {
+      if (modoAdmin) return false;
       if (!deviceFingerprint) deviceFingerprint = await gerarFingerprint();
       try {
         const res = await fetch('/api/verificar-bloqueio', {
@@ -559,14 +561,15 @@
       const printOriginal = printInput.files[0];
       const printComprimido = await comprimirImagem(printOriginal);
 
-      if (!deviceFingerprint) deviceFingerprint = await gerarFingerprint();
-
       const formData = new FormData();
       formData.append('nome_completo', document.getElementById('nome_completo').value);
       formData.append('whatsapp', document.getElementById('whatsapp').value);
       formData.append('palavra_chave', document.getElementById('palavra_chave').value);
       formData.append('print', printComprimido);
-      formData.append('fingerprint', deviceFingerprint);
+      if (!modoAdmin) {
+        if (!deviceFingerprint) deviceFingerprint = await gerarFingerprint();
+        formData.append('fingerprint', deviceFingerprint);
+      }
 
       try {
         const res = await fetch('/api/participantes', {
