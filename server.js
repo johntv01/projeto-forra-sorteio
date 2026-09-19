@@ -58,6 +58,21 @@ async function initDb() {
       criado_em TEXT DEFAULT (datetime('now', 'localtime'))
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS config (
+      chave TEXT PRIMARY KEY,
+      valor TEXT
+    )
+  `);
+
+  const result = db.exec("SELECT valor FROM config WHERE chave = 'rodada'");
+  if (result.length > 0) {
+    rodada = parseInt(result[0].values[0][0], 10);
+  } else {
+    db.run("INSERT INTO config (chave, valor) VALUES ('rodada', '1')");
+  }
+
   salvarDb();
 }
 
@@ -214,6 +229,7 @@ app.delete('/api/admin/zerar', verificarAdmin, (req, res) => {
     }
     db.run('DELETE FROM participantes');
     rodada++;
+    db.run("UPDATE config SET valor = ? WHERE chave = 'rodada'", [String(rodada)]);
     salvarDb();
     res.json({ sucesso: true });
   } catch {
