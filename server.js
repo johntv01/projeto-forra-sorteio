@@ -183,7 +183,7 @@ app.post('/api/participantes', (req, res) => {
     const numeros = db.exec('SELECT whatsapp FROM participantes');
     if (numeros.length > 0 && numeros[0].values.some(([w]) => soDigitos(w) === soDigitos(whatsappLimpo))) {
       fs.unlinkSync(req.file.path);
-      return res.status(409).json({ erro: 'Você já está participando deste sorteio!' });
+      return res.status(409).json({ erro: 'Cadastro não realizado: já existe uma participação com esses dados neste sorteio.' });
     }
 
     if (nomeLimpo.length < 4) {
@@ -211,7 +211,7 @@ app.post('/api/participantes', (req, res) => {
     } catch (err) {
       fs.unlinkSync(req.file.path);
       if (err.message.includes('UNIQUE constraint failed')) {
-        return res.status(409).json({ erro: 'Você já está participando deste sorteio!' });
+        return res.status(409).json({ erro: 'Cadastro não realizado: já existe uma participação com esses dados neste sorteio.' });
       }
       res.status(500).json({ erro: 'Erro interno do servidor.' });
     }
