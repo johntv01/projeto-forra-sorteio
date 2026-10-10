@@ -497,33 +497,20 @@
       });
     }
 
+    // Código aleatório por aparelho, guardado no navegador. A versão antiga montava o código a partir
+    // do modelo/tela/idioma, e celulares iguais (ex: dois iPhone 13) geravam o mesmo código e se bloqueavam.
     async function gerarFingerprint() {
-      const partes = [];
-      partes.push(navigator.userAgent);
-      partes.push(navigator.language);
-      partes.push(screen.width + 'x' + screen.height);
-      partes.push(screen.colorDepth);
-      partes.push(new Date().getTimezoneOffset());
-      partes.push(navigator.hardwareConcurrency || 'unknown');
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx.textBaseline = 'top';
-        ctx.font = '14px Arial';
-        ctx.fillText('fingerprint', 2, 2);
-        partes.push(canvas.toDataURL());
-      } catch {}
-      try {
-        const gl = document.createElement('canvas').getContext('webgl');
-        if (gl) {
-          partes.push(gl.getParameter(gl.RENDERER));
-          partes.push(gl.getParameter(gl.VENDOR));
-        }
-      } catch {}
-      const texto = partes.join('|||');
-      const buffer = new TextEncoder().encode(texto);
-      const hash = await crypto.subtle.digest('SHA-256', buffer);
-      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+      const CHAVE = 'sorteio_dispositivo';
+      let id = null;
+      try { id = localStorage.getItem(CHAVE); } catch {}
+      // alguns navegadores embutidos bloqueiam cookie/localStorage e lançam erro: nunca pode travar o cadastro
+      if (!id) { try { const m = document.cookie.match(/(?:^|; )sorteio_dispositivo=([^;]+)/); if (m) id = m[1]; } catch {} }
+      if (!id) {
+        id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      }
+      try { localStorage.setItem(CHAVE, id); } catch {}
+      try { document.cookie = `sorteio_dispositivo=${id}; max-age=31536000; path=/; SameSite=Lax`; } catch {}
+      return id;
     }
 
     let deviceFingerprint = null;

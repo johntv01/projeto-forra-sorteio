@@ -51,7 +51,7 @@ async function initDb() {
   db.run(`
     CREATE TABLE IF NOT EXISTS participantes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      nome_completo TEXT NOT NULL UNIQUE,
+      nome_completo TEXT NOT NULL,
       whatsapp TEXT NOT NULL UNIQUE,
       palavra_chave TEXT NOT NULL,
       print_path TEXT NOT NULL,
@@ -72,6 +72,26 @@ async function initDb() {
       bloqueado_em INTEGER NOT NULL
     )
   `);
+
+  // Bancos antigos tinham UNIQUE no nome, o que barrava pessoas diferentes com o mesmo nome
+  const esquema = db.exec("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'participantes'");
+  if (esquema.length > 0 && /nome_completo TEXT NOT NULL UNIQUE/.test(esquema[0].values[0][0])) {
+    db.run('BEGIN');
+    db.run(`
+      CREATE TABLE participantes_novo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome_completo TEXT NOT NULL,
+        whatsapp TEXT NOT NULL UNIQUE,
+        palavra_chave TEXT NOT NULL,
+        print_path TEXT NOT NULL,
+        criado_em TEXT DEFAULT (datetime('now', 'localtime'))
+      )
+    `);
+    db.run('INSERT INTO participantes_novo (id, nome_completo, whatsapp, palavra_chave, print_path, criado_em) SELECT id, nome_completo, whatsapp, palavra_chave, print_path, criado_em FROM participantes');
+    db.run('DROP TABLE participantes');
+    db.run('ALTER TABLE participantes_novo RENAME TO participantes');
+    db.run('COMMIT');
+  }
 
   const result = db.exec("SELECT valor FROM config WHERE chave = 'rodada'");
   if (result.length > 0) {
@@ -158,6 +178,14 @@ app.post('/api/participantes', (req, res) => {
     const whatsappLimpo = whatsapp.trim();
     const palavraLimpa = palavra_chave.trim();
 
+    // Mesmo WhatsApp = mesma pessoa, independente de como o número foi digitado
+    const soDigitos = s => String(s).replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
+    const numeros = db.exec('SELECT whatsapp FROM participantes');
+    if (numeros.length > 0 && numeros[0].values.some(([w]) => soDigitos(w) === soDigitos(whatsappLimpo))) {
+      fs.unlinkSync(req.file.path);
+      return res.status(409).json({ erro: 'Esse WhatsApp já está cadastrado neste sorteio.' });
+    }
+
     if (nomeLimpo.length < 4) {
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ erro: 'Digite seu nome completo (mínimo 4 caracteres).' });
@@ -183,7 +211,7 @@ app.post('/api/participantes', (req, res) => {
     } catch (err) {
       fs.unlinkSync(req.file.path);
       if (err.message.includes('UNIQUE constraint failed')) {
-        return res.status(409).json({ erro: 'Você já se cadastrou.' });
+        return res.status(409).json({ erro: 'Esse WhatsApp já está cadastrado neste sorteio.' });
       }
       res.status(500).json({ erro: 'Erro interno do servidor.' });
     }
